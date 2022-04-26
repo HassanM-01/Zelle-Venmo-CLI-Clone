@@ -2,6 +2,8 @@ package com.techelevator.tenmo.controller;
 
 import javax.validation.Valid;
 
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -36,8 +38,9 @@ public class AuthenticationController {
         this.userDao = userDao;
     }
 
+    @ApiOperation("Authenticates the user with the given username and password")
     @RequestMapping(value = "/login", method = RequestMethod.POST)
-    public LoginResponse login(@Valid @RequestBody LoginDTO loginDto) {
+    public LoginResponse login(@Valid @RequestBody @ApiParam("username and password")LoginDTO loginDto) {
 
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword());
@@ -51,9 +54,10 @@ public class AuthenticationController {
         return new LoginResponse(jwt, user);
     }
 
+    @ApiOperation("Registers a new user")
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/register", method = RequestMethod.POST)
-    public void register(@Valid @RequestBody RegisterUserDTO newUser) {
+    public void register(@Valid @RequestBody @ApiParam("Registration info") RegisterUserDTO newUser) {
         if (!userDao.create(newUser.getUsername(), newUser.getPassword())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User registration failed.");
         }
