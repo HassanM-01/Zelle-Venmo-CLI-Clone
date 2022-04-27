@@ -2,8 +2,13 @@ package com.techelevator.tenmo;
 
 import com.techelevator.tenmo.model.AuthenticatedUser;
 import com.techelevator.tenmo.model.UserCredentials;
+import com.techelevator.tenmo.services.AccountServices;
 import com.techelevator.tenmo.services.AuthenticationService;
 import com.techelevator.tenmo.services.ConsoleService;
+import org.springframework.web.client.RestClientException;
+
+import java.math.BigDecimal;
+import java.util.Arrays;
 
 public class App {
 
@@ -85,9 +90,21 @@ public class App {
     }
 
 	private void viewCurrentBalance() {
-		// TODO Auto-generated method stub
+        AccountServices accountServices = new AccountServices(API_BASE_URL, currentUser);
+        BigDecimal balance;
+        try {
+            balance = accountServices.returnBalance();
+            System.out.println(balance);
+        } catch (RestClientException e) {
+            System.out.println("No balance, you're broke :(");
+        } catch (Exception e) {
+            System.out.println(Arrays.toString(e.getStackTrace()));
+        }
+    }
+
+        // TODO Auto-generated method stub
 		
-	}
+
 
 	private void viewTransferHistory() {
 		// TODO Auto-generated method stub
