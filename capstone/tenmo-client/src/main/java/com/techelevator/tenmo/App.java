@@ -1,10 +1,13 @@
 package com.techelevator.tenmo;
 
 import com.techelevator.tenmo.model.AuthenticatedUser;
+import com.techelevator.tenmo.model.Transfer;
+import com.techelevator.tenmo.model.User;
 import com.techelevator.tenmo.model.UserCredentials;
 import com.techelevator.tenmo.services.AccountServices;
 import com.techelevator.tenmo.services.AuthenticationService;
 import com.techelevator.tenmo.services.ConsoleService;
+import com.techelevator.tenmo.services.TransferService;
 import org.springframework.web.client.RestClientException;
 
 import java.math.BigDecimal;
@@ -17,7 +20,9 @@ public class App {
     private final ConsoleService consoleService = new ConsoleService();
     private final AuthenticationService authenticationService = new AuthenticationService(API_BASE_URL);
 
+
     private AuthenticatedUser currentUser;
+
 
     public static void main(String[] args) {
         App app = new App();
@@ -102,7 +107,7 @@ public class App {
         }
     }
 
-        // TODO Auto-generated method stub
+
 		
 
 
@@ -117,8 +122,26 @@ public class App {
 	}
 
 	private void sendBucks() {
-		// TODO Auto-generated method stub
-		
+        AccountServices accountServices = new AccountServices(API_BASE_URL, currentUser);
+        TransferService transferService = new TransferService(API_BASE_URL, currentUser);
+
+        User[] users = accountServices.getUsers();
+        consoleService.transferFundsPrompt(users);
+        int userId = consoleService.promptForInt("Enter ID of user you are sending to (0 to cancel):");
+        Long parsedUserId = Long.parseLong("" + userId);
+        if (userId == 0 ){
+            mainMenu();
+        }
+        BigDecimal transferAmount = consoleService.promptForBigDecimal("Enter amount: ");
+        String transferType = "Send";
+        String transferStatus = "Approved";
+        Transfer transfer = new Transfer(parsedUserId, transferAmount, transferType, transferStatus);
+        if(transferService.sendFunds(transfer)){
+            consoleService.transferSuccess();
+        } else {
+            consoleService.transferFailure();
+        }
+
 	}
 
 	private void requestBucks() {

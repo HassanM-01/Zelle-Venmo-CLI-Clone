@@ -1,6 +1,7 @@
 package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.model.Account;
+import com.techelevator.tenmo.model.User;
 import org.springframework.boot.autoconfigure.quartz.QuartzProperties;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -18,7 +19,6 @@ public class JdbcAccountDao implements AccountDao {
 
     public  JdbcAccountDao(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
-
     }
 
     @Override
@@ -33,14 +33,16 @@ public class JdbcAccountDao implements AccountDao {
         return balance;
     }
 
-    @Override
-    public Map<Long, String> getAllAccounts() {
-        return null;
-    }
+//    @Override
+//    public User[] getAllAccounts() {
+//        User[] users = null;
+//
+//    }
 
     private Account mapRowToAccount (SqlRowSet result){
         Account account = new Account();
         account.setUserId(result.getLong("user_id"));
+
         return account;
     }
 

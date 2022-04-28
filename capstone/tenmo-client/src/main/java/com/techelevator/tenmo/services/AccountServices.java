@@ -16,10 +16,9 @@ import java.util.List;
 
 public class AccountServices {
 
-    private RestTemplate restTemplate;
+    private RestTemplate restTemplate = new RestTemplate();
     private AuthenticatedUser authenticatedUser;
     private String API_BASE_URL;
-
 
     public AccountServices(String url, AuthenticatedUser authenticatedUser) {
         this.authenticatedUser = authenticatedUser;
@@ -27,16 +26,27 @@ public class AccountServices {
     }
 
 
-    public BigDecimal returnBalance() {
-        BigDecimal balance = new BigDecimal(0);
+    public BigDecimal returnBalance (){
+    BigDecimal balance = new BigDecimal(0);
+    try {
+            balance = restTemplate.exchange(API_BASE_URL + "tenmo/balance/", HttpMethod.GET, makeAuthEntity(), BigDecimal.class).getBody();
+    } catch (RestClientResponseException | ResourceAccessException e) {
+        BasicLogger.log(e.getMessage());
+    }
+    return balance;
+    }
+
+    public User[] getUsers () {
+        User[] users = null;
         try {
-            balance = restTemplate.exchange(API_BASE_URL + "balance/", HttpMethod.GET, makeAuthEntity(), BigDecimal.class).getBody();
+            users = restTemplate.exchange(API_BASE_URL + "tenmo/users/list", HttpMethod.GET, makeAuthEntity(), User[].class).getBody();
         } catch (RestClientResponseException | ResourceAccessException e) {
             BasicLogger.log(e.getMessage());
         }
-        return balance;
-
+        return users;
     }
+
+
 
 
     private HttpEntity<Account> makeAccountEntity(Account account) {

@@ -1,6 +1,7 @@
 package com.techelevator.tenmo.services;
 
 
+import com.techelevator.tenmo.model.User;
 import com.techelevator.tenmo.model.UserCredentials;
 
 import java.math.BigDecimal;
@@ -88,4 +89,22 @@ public class ConsoleService {
         System.out.println("An error occurred. Check the log for details.");
     }
 
+    public void transferFundsPrompt(User[] users) {
+        System.out.println("-------------------------------------------");
+        System.out.println("Users");
+        System.out.println("ID          Name");
+        System.out.println("-------------------------------------------");
+        for (User user : users) {
+            System.out.println(user.getId() + "          " + user.getUsername());
+        }
+        System.out.println("---------");
+    }
+
+    public void transferSuccess() {
+        System.out.println("Transfer Successful!");
+    }
+
+    public void transferFailure() {
+        System.out.println("Transfer failed to complete.");
+    }
 }
