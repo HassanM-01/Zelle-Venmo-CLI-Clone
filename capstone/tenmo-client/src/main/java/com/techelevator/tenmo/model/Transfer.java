@@ -9,12 +9,23 @@ public class Transfer {
     private Long transferType;
     private Long transferId;
     private Long transferStatus;
+    private String toUsername;
 
     public Transfer(Long userId, BigDecimal transferAmount, Long transferType) {
         this.userId = userId;
         this.transferAmount = transferAmount;
         this.transferType = transferType;
     }
+
+    public Transfer (BigDecimal transferAmount, Long transferStatus,Long transferType, Long userId, Long transferId){
+        this.transferAmount = transferAmount;
+        this.transferStatus = transferStatus;
+        this.transferType = transferType;
+        this.userId = userId;
+        this.transferId = transferId;
+    }
+
+    public Transfer(){}
 
     public Long getTransferId() {
         return transferId;
@@ -30,16 +41,6 @@ public class Transfer {
 
     public void setTransferStatus(Long transferStatus) {
         this.transferStatus = transferStatus;
-    }
-
-    public Transfer(){}
-
-    public Transfer (BigDecimal transferAmount, Long transferStatus,Long transferType, Long userId, Long transferId){
-        this.transferAmount = transferAmount;
-        this.transferStatus = transferStatus;
-        this.transferType = transferType;
-        this.userId = userId;
-        this.transferId = transferId;
     }
 
     public long getUserId() {
@@ -66,5 +67,11 @@ public class Transfer {
         this.transferType = transferType;
     }
 
+    public String getToUsername() {
+        return toUsername;
+    }
 
+    public void setToUsername(String toUsername) {
+        this.toUsername = toUsername;
+    }
 }

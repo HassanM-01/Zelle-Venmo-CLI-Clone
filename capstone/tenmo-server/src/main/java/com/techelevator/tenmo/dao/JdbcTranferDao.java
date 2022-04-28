@@ -54,14 +54,17 @@ public class JdbcTranferDao implements TransferDao {
     @Override
     public List<Transfer> getTransfers(String username) {
         List<Transfer> transfers = new ArrayList<>();
-        String sql =  "SELECT transfer_id, transfer_type_id, transfer_status_id, user_id, amount FROM transfer JOIN account ON account.account_id = transfer.account_to" +
-                " WHERE account_from = (SELECT account_id FROM account JOIN tenmo_user USING (user_id) WHERE username = ?)";
-        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, username);
+        String sql =  "SELECT transfer_id, transfer_type_id, transfer_status_id, user_id, amount, username " +
+                      "FROM transfer " +
+                      "JOIN account ON account.account_id = transfer.account_to " +
+                      "JOIN tenmo_user USING (user_id) " +
+                      "WHERE account_from = (SELECT account_id FROM account JOIN tenmo_user USING (user_id) WHERE username = ?)" +
+                      "OR account_to = (SELECT account_id FROM account JOIN tenmo_user USING (user_id) WHERE username = ?)";
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, username, username);
 
         while(results.next()) {
             transfers.add(mapRowToTransfer(results));
         }
-
         return transfers;
     }
 
@@ -73,7 +76,7 @@ public class JdbcTranferDao implements TransferDao {
         transfer.setTransferType(rowSet.getLong("transfer_type_id"));
         transfer.setUserId(rowSet.getLong("user_id"));
         transfer.setTransferId(rowSet.getLong("transfer_id"));
-
+        transfer.setToUsername(rowSet.getString("username"));
         return transfer;
     }
 

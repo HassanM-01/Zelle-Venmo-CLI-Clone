@@ -115,6 +115,9 @@ public class App {
 
         consoleService.transferHistory(currentUser, transfers);
 
+        int transferId = 3000 + consoleService.promptForInt("Please enter transfer ID to view details (0 to cancel): ");
+        Transfer selectedTransfer = consoleService.displayTransfer(transferId, transfers);
+        consoleService.printTransfer(selectedTransfer, currentUser);
     }
 
     private void viewPendingRequests() {
@@ -129,10 +132,14 @@ public class App {
         User[] users = accountServices.getUsers();
         consoleService.transferFundsPrompt(users);
         int userId = consoleService.promptForInt("Enter ID of user you are sending to (0 to cancel):");
-        Long parsedUserId = Long.parseLong("" + userId);
         if (userId == 0) {
             mainMenu();
         }
+        if (userId < 0) {
+            consoleService.printErrorMessage();
+        }
+        userId += 1000;
+        Long parsedUserId = Long.parseLong("" + userId);
         BigDecimal transferAmount = consoleService.promptForBigDecimal("Enter amount: ");
 
         Long transferType = Long.valueOf(1);
@@ -144,6 +151,15 @@ public class App {
             consoleService.transferFailure();
         }
 
+    }
+
+    public void verifyAccountExists(Long id, User[] users) {
+        for (User user : users) {
+            if(!user.getId().equals(id)) {
+                System.out.println("This id is not associated with an account, please try again.");
+            }
+        }
+        sendBucks();
     }
 
     private void requestBucks() {

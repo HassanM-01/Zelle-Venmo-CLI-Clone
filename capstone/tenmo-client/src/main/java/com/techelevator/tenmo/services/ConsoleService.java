@@ -97,24 +97,30 @@ public class ConsoleService {
         System.out.println("ID          Name");
         System.out.println("-------------------------------------------");
         for (User user : users) {
-            System.out.println(user.getId() + "        " + user.getUsername());
+            System.out.println(user.getId().toString().substring(1) + "         " + user.getUsername());
         }
         System.out.println("---------");
     }
 
-    public void transferHistory (AuthenticatedUser authenticatedUser, Transfer[] transfers) {
+    public void transferHistory(AuthenticatedUser authenticatedUser, Transfer[] transfers) {
         System.out.println("-------------------------------------------");
         System.out.println("Transfers");
         System.out.println("ID              Name                 Amount");
         System.out.println("-------------------------------------------");
         for (Transfer transfer : transfers) {
-            if (transfer.getTransferType() == 1) {
-                System.out.println(transfer.getTransferId().toString().substring(2) + "          From: " + authenticatedUser.getUser().getUsername() + "                 " + transfer.getTransferAmount());
+            // if the current user's name is the same name as the destination account's
+            // user name then the current user received those funds
+            if (authenticatedUser.getUser().getUsername().equals(transfer.getToUsername())) {
+                System.out.println(transfer.getTransferId().toString().substring(1) +
+                        "          From: " + transfer.getToUsername() +
+                        "                 " + transfer.getTransferAmount());
             } else {
-                System.out.println(transfer.getTransferId().toString().substring(2) + "          To: " + authenticatedUser.getUser().getUsername() + "                 " + transfer.getTransferAmount());
-
+                System.out.println(transfer.getTransferId().toString().substring(1) +
+                        "            To: " + transfer.getToUsername() +
+                        "                 " + transfer.getTransferAmount());
             }
         }
+        System.out.println("---------");
     }
 
 
@@ -125,4 +131,45 @@ public class ConsoleService {
     public void transferFailure() {
         System.out.println("Transfer failed to complete. Make sure you enter a positive number and have sufficient funds!");
     }
+
+    public Transfer displayTransfer(int selectedTransferId, Transfer[] transfers) {
+        Transfer selectedTransfer = null;
+        for (Transfer transfer : transfers) {
+            if (transfer.getTransferId() == selectedTransferId) {
+                selectedTransfer = transfer;
+            }
+        }
+        return selectedTransfer;
+    }
+
+    public void printTransfer(Transfer transfer, AuthenticatedUser fromUser) {
+        System.out.println("--------------------------------------------");
+        System.out.println("Transfer Details");
+        System.out.println("--------------------------------------------");
+        System.out.println("Id: " + transfer.getTransferId().toString().substring(2));
+        System.out.println("From: " + fromUser.getUser().getUsername());
+        System.out.println("To: " + transfer.getToUsername());
+        System.out.println("Type: " + convertTransferTypeToWord(transfer.getTransferType()));
+        System.out.println("Status: " + convertTransferStatusToWord(transfer.getTransferStatus()));
+        System.out.println("Amount: " + transfer.getTransferAmount());
+    }
+
+    public String convertTransferStatusToWord(Long id) {
+        if (id == 1) {
+            return "Pending";
+        } else if (id == 2) {
+            return "Approved";
+        } else {
+            return "Rejected";
+        }
+    }
+
+    public String convertTransferTypeToWord(Long id) {
+        if (id == 1) {
+            return "Request";
+        } else {
+            return "Send";
+        }
+    }
+
 }
