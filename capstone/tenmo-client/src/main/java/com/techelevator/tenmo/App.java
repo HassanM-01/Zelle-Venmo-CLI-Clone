@@ -36,6 +36,7 @@ public class App {
             mainMenu();
         }
     }
+
     private void loginMenu() {
         int menuSelection = -1;
         while (menuSelection != 0 && currentUser == null) {
@@ -94,7 +95,7 @@ public class App {
         }
     }
 
-	private void viewCurrentBalance() {
+    private void viewCurrentBalance() {
         AccountServices accountServices = new AccountServices(API_BASE_URL, currentUser);
         BigDecimal balance;
         try {
@@ -108,20 +109,20 @@ public class App {
     }
 
 
-		
+    private void viewTransferHistory() {
+        TransferService transferService = new TransferService(API_BASE_URL, currentUser);
+        Transfer [] transfers = transferService.getTransfers();
 
+        consoleService.transferHistory(currentUser, transfers);
 
-	private void viewTransferHistory() {
-		// TODO Auto-generated method stub
-		
-	}
+    }
 
-	private void viewPendingRequests() {
-		// TODO Auto-generated method stub
-		
-	}
+    private void viewPendingRequests() {
+        // TODO Auto-generated method stub
 
-	private void sendBucks() {
+    }
+
+    private void sendBucks() {
         AccountServices accountServices = new AccountServices(API_BASE_URL, currentUser);
         TransferService transferService = new TransferService(API_BASE_URL, currentUser);
 
@@ -129,24 +130,25 @@ public class App {
         consoleService.transferFundsPrompt(users);
         int userId = consoleService.promptForInt("Enter ID of user you are sending to (0 to cancel):");
         Long parsedUserId = Long.parseLong("" + userId);
-        if (userId == 0 ){
+        if (userId == 0) {
             mainMenu();
         }
         BigDecimal transferAmount = consoleService.promptForBigDecimal("Enter amount: ");
-        String transferType = "Send";
-        String transferStatus = "Approved";
-        Transfer transfer = new Transfer(parsedUserId, transferAmount, transferType, transferStatus);
-        if(transferService.sendFunds(transfer)){
+
+        Long transferType = Long.valueOf(1);
+
+        Transfer transfer = new Transfer(parsedUserId, transferAmount, transferType);
+        if (transferService.sendFunds(transfer)) {
             consoleService.transferSuccess();
         } else {
             consoleService.transferFailure();
         }
 
-	}
+    }
 
-	private void requestBucks() {
-		// TODO Auto-generated method stub
-		
-	}
+    private void requestBucks() {
+        // TODO Auto-generated method stub
+
+    }
 
 }

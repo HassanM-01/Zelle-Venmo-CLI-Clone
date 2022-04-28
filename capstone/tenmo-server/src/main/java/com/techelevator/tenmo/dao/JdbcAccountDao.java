@@ -33,11 +33,20 @@ public class JdbcAccountDao implements AccountDao {
         return balance;
     }
 
-//    @Override
-//    public User[] getAllAccounts() {
-//        User[] users = null;
-//
-//    }
+    @Override
+    public boolean sendFunds(BigDecimal bigDecimal, Long id) {
+        String sql = "UPDATE account SET balance = balance - ? WHERE user_id = ? AND balance >= ?";
+
+        return jdbcTemplate.update(sql, bigDecimal, id, bigDecimal) == 1;
+    }
+
+    @Override
+    public boolean recieveFunds(BigDecimal bigDecimal, Long id) {
+        String sql = "UPDATE account SET balance = balance + ? WHERE user_id = ?";
+
+        return jdbcTemplate.update(sql, bigDecimal, id) == 1;
+    }
+
 
     private Account mapRowToAccount (SqlRowSet result){
         Account account = new Account();
