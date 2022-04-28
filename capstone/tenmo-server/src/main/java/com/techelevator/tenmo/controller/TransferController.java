@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
+import java.util.List;
 
 @RestController
 @PreAuthorize("isAuthenticated()")
@@ -30,6 +31,10 @@ public class TransferController {
         return transferDao.sendFunds(transfer, principal.getName());
     }
 
+    @RequestMapping (path = "list", method = RequestMethod.GET)
+    public List<Transfer> getTransfers (Principal principal){
+        return transferDao.getTransfers(principal.getName());
+    }
 
 
 

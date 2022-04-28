@@ -1,6 +1,8 @@
 package com.techelevator.tenmo.services;
 
 
+import com.techelevator.tenmo.model.AuthenticatedUser;
+import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.User;
 import com.techelevator.tenmo.model.UserCredentials;
 
@@ -100,11 +102,27 @@ public class ConsoleService {
         System.out.println("---------");
     }
 
+    public void transferHistory (AuthenticatedUser authenticatedUser, Transfer[] transfers) {
+        System.out.println("-------------------------------------------");
+        System.out.println("Transfers");
+        System.out.println("ID:         Name:");
+        System.out.println("-------------------------------------------");
+        for (Transfer transfer : transfers) {
+            if (transfer.getTransferType() == 1) {
+                System.out.println(authenticatedUser.getUser().getId() + "            From:" + authenticatedUser.getUser().getUsername() + "    " + transfer.getTransferAmount());
+            } else {
+                System.out.println(transfer.getUserId() + "            To:" + authenticatedUser.getUser().getUsername() + "      " + transfer.getTransferAmount());
+
+            }
+        }
+    }
+
+
     public void transferSuccess() {
         System.out.println("Transfer Successful!");
     }
 
     public void transferFailure() {
-        System.out.println("Transfer failed to complete.");
+        System.out.println("Transfer failed to complete. Make sure you enter a positive number and have sufficient funds!");
     }
 }

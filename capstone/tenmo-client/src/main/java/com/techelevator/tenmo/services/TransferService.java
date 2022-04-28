@@ -35,6 +35,25 @@ public class TransferService {
         return success;
     }
 
+    public Transfer[] getTransfers () {
+        Transfer[] transfers = null;
+
+        try {
+            transfers = restTemplate.exchange(API_BASE_URL + "tenmo/transfer/list", HttpMethod.GET, makeAuthEntity(), Transfer[].class).getBody();
+        } catch (RestClientResponseException | ResourceAccessException e) {
+            BasicLogger.log(e.getMessage());
+        }
+        return transfers;
+    }
+    private HttpEntity<Void> makeAuthEntity () {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(authenticatedUser.getToken());
+        return new HttpEntity<>(headers);
+    }
+
+
+
+
     private HttpEntity<Transfer> makeTransferEntity (Transfer transfer) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);

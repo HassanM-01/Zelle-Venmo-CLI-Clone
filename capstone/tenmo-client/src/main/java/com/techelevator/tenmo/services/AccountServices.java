@@ -49,7 +49,7 @@ public class AccountServices {
 
 
 
-    private HttpEntity<Account> makeAccountEntity (Account account) {
+    private HttpEntity<Account> makeAccountEntity(Account account) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(authenticatedUser.getToken());
@@ -61,10 +61,6 @@ public class AccountServices {
         headers.setBearerAuth(authenticatedUser.getToken());
         return new HttpEntity<>(headers);
     }
-
-
-
-
 
 
 }

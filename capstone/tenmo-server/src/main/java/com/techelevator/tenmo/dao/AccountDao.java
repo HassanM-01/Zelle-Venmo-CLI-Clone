@@ -12,7 +12,9 @@ public interface AccountDao {
 
 //    public User[] getAllAccounts();
 
+    boolean sendFunds (BigDecimal bigDecimal, Long id);
 
+    boolean recieveFunds (BigDecimal bigDecimal, Long id);
 
 
 }
