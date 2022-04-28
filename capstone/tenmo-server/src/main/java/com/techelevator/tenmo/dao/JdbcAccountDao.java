@@ -19,7 +19,7 @@ public class JdbcAccountDao implements AccountDao {
 
     public  JdbcAccountDao(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
-    }
+     }
 
     @Override
     public BigDecimal getBalance(String username) {
