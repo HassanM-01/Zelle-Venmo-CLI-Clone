@@ -16,6 +16,22 @@ public class Transfer {
         this.transferType = transferType;
     }
 
+    public Long getTransferId() {
+        return transferId;
+    }
+
+    public void setTransferId(Long transferId) {
+        this.transferId = transferId;
+    }
+
+    public Long getTransferStatus() {
+        return transferStatus;
+    }
+
+    public void setTransferStatus(Long transferStatus) {
+        this.transferStatus = transferStatus;
+    }
+
     public Transfer(){}
 
     public Transfer (BigDecimal transferAmount, Long transferStatus,Long transferType, Long userId, Long transferId){

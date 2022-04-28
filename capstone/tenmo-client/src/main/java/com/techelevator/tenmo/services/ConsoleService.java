@@ -97,7 +97,7 @@ public class ConsoleService {
         System.out.println("ID          Name");
         System.out.println("-------------------------------------------");
         for (User user : users) {
-            System.out.println(user.getId() + "          " + user.getUsername());
+            System.out.println(user.getId() + "        " + user.getUsername());
         }
         System.out.println("---------");
     }
@@ -105,13 +105,13 @@ public class ConsoleService {
     public void transferHistory (AuthenticatedUser authenticatedUser, Transfer[] transfers) {
         System.out.println("-------------------------------------------");
         System.out.println("Transfers");
-        System.out.println("ID:         Name:");
+        System.out.println("ID              Name                 Amount");
         System.out.println("-------------------------------------------");
         for (Transfer transfer : transfers) {
             if (transfer.getTransferType() == 1) {
-                System.out.println(authenticatedUser.getUser().getId() + "            From:" + authenticatedUser.getUser().getUsername() + "    " + transfer.getTransferAmount());
+                System.out.println(transfer.getTransferId().toString().substring(2) + "          From: " + authenticatedUser.getUser().getUsername() + "                 " + transfer.getTransferAmount());
             } else {
-                System.out.println(transfer.getUserId() + "            To:" + authenticatedUser.getUser().getUsername() + "      " + transfer.getTransferAmount());
+                System.out.println(transfer.getTransferId().toString().substring(2) + "          To: " + authenticatedUser.getUser().getUsername() + "                 " + transfer.getTransferAmount());
 
             }
         }
