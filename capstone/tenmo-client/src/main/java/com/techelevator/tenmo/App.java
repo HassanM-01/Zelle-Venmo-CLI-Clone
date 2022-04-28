@@ -116,8 +116,26 @@ public class App {
         consoleService.transferHistory(currentUser, transfers);
 
         int transferId = 3000 + consoleService.promptForInt("Please enter transfer ID to view details (0 to cancel): ");
-        Transfer selectedTransfer = consoleService.displayTransfer(transferId, transfers);
-        consoleService.printTransfer(selectedTransfer, currentUser);
+        if (transferId == 3000) {
+            mainMenu();
+        }
+        if (transferId < 3000) {
+            consoleService.printErrorMessage();
+        }
+        verifyTransferExists((long) transferId, transfers);
+    }
+
+    public void verifyTransferExists(Long id, Transfer[] transfers) {
+        for (Transfer transfer : transfers) {
+            if(transfer.getTransferId().equals(id)) {
+                Transfer selectedTransfer = consoleService.displayTransfer(Integer.parseInt(id + ""), transfers);
+                consoleService.printTransfer(selectedTransfer, currentUser);
+                viewTransferHistory();
+            }
+        }
+        System.out.println("\nThis id is not associated with an account, please try again.\n");
+        viewTransferHistory();
+
     }
 
     private void viewPendingRequests() {
@@ -140,6 +158,7 @@ public class App {
         }
         userId += 1000;
         Long parsedUserId = Long.parseLong("" + userId);
+        verifyAccountExists(parsedUserId, users);
         BigDecimal transferAmount = consoleService.promptForBigDecimal("Enter amount: ");
 
         Long transferType = Long.valueOf(1);
@@ -156,10 +175,10 @@ public class App {
     public void verifyAccountExists(Long id, User[] users) {
         for (User user : users) {
             if(!user.getId().equals(id)) {
-                System.out.println("This id is not associated with an account, please try again.");
+                System.out.println("\nThis id is not associated with an account, please try again.\n");
+                sendBucks();
             }
         }
-        sendBucks();
     }
 
     private void requestBucks() {
