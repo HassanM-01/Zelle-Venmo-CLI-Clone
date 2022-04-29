@@ -79,7 +79,11 @@ public class App {
             if (menuSelection == 1) {
                 viewCurrentBalance();
             } else if (menuSelection == 2) {
-                viewTransferHistory();
+                Transfer[] transfers = getTransferHistory();
+                consoleService.transferHistory(currentUser, transfers);
+                Long id = getTransferIDFromUser();
+                Transfer transfer = verifyTransferExists(id, transfers);
+                consoleService.printTransfer(transfer);
             } else if (menuSelection == 3) {
                 viewPendingRequests();
             } else if (menuSelection == 4) {
@@ -108,39 +112,45 @@ public class App {
         }
     }
 
-
-    private void viewTransferHistory() {
+    private Transfer[] getTransferHistory() {
         TransferService transferService = new TransferService(API_BASE_URL, currentUser);
-        Transfer [] transfers = transferService.getTransfers();
-
-        consoleService.transferHistory(currentUser, transfers);
-
-        int transferId = 3000 + consoleService.promptForInt("Please enter transfer ID to view details (0 to cancel): ");
-        if (transferId == 3000) {
-            mainMenu();
-        }
-        if (transferId < 3000) {
-            consoleService.printErrorMessage();
-        }
-        verifyTransferExists((long) transferId, transfers);
+        return transferService.getTransfers();
     }
 
-    public void verifyTransferExists(Long id, Transfer[] transfers) {
+    public Long getTransferIDFromUser() {
+        Long transferId = consoleService.promptForLong("Please enter transfer ID to view details (0 to cancel): ");
+        if (transferId == 0) {
+            mainMenu();
+        } else {
+            transferId += 3000;
+        }
+        return transferId;
+    }
+
+    public Long returnsUserIdLong (Long userId){
+        if (userId == 0) {
+            mainMenu();
+        }
+        if (userId < 0) {
+            consoleService.printErrorMessage();
+        }
+        userId += 1000;
+
+        return userId;
+    }
+
+    public Transfer verifyTransferExists(Long id, Transfer[] transfers) {
+       Transfer newTransfer = null;
         for (Transfer transfer : transfers) {
             if(transfer.getTransferId().equals(id)) {
-                Transfer selectedTransfer = consoleService.displayTransfer(Integer.parseInt(id + ""), transfers);
-                consoleService.printTransfer(selectedTransfer, currentUser);
-                viewTransferHistory();
+                newTransfer = transfer;
             }
         }
-        System.out.println("\nThis id is not associated with an account, please try again.\n");
-        viewTransferHistory();
-
+        return newTransfer;
     }
 
     private void viewPendingRequests() {
         // TODO Auto-generated method stub
-
     }
 
     private void sendBucks() {
@@ -149,12 +159,11 @@ public class App {
         User[] users = accountServices.getUsers();
         consoleService.transferFundsPrompt(users);
 
-        int userId = consoleService.promptForInt("Enter ID of user you are sending to (0 to cancel):");
+        Long userId = consoleService.promptForLong("Enter ID of user you are sending to (0 to cancel):");
 
         Long parsedUserId = returnsUserIdLong(userId);
         parsedUserId = verifyAccountExists(parsedUserId, users);
         if (parsedUserId == 0){
-            consoleService.printString("The chosen account doesn't exist");
             mainMenu();
         }
         BigDecimal transferAmount = consoleService.promptForBigDecimal("Enter amount: ");
@@ -180,31 +189,13 @@ public class App {
 
 
 
-
-    public Long returnsUserIdLong (int userId){
-
-        if (userId == 0) {
-            mainMenu();
-        }
-        if (userId < 0) {
-            consoleService.printErrorMessage();
-        }
-        userId += 1000;
-
-        return Long.parseLong("" + userId);
-    }
-
-
-
     public Long verifyAccountExists(Long id, User[] users) {
         for (User user : users) {
             if(user.getId().equals(id)) {
                 return id;
             }
         }
-
         System.out.println("\nThis id is not associated with an account, please try again.\n");
-
         return Long.valueOf(0);
     }
 

@@ -28,7 +28,7 @@ public class TransferController {
 
     @RequestMapping(path = "send", method = RequestMethod.POST)
     public boolean sendFunds(Principal principal, @RequestBody Transfer transfer) {
-        return transferDao.sendFunds(transfer, principal.getName());
+        return transferDao.logTransfer(transfer, principal.getName());
     }
 
     @RequestMapping (path = "list", method = RequestMethod.GET)

@@ -60,6 +60,19 @@ public class ConsoleService {
         return scanner.nextLine();
     }
 
+    public Long promptForLong(String prompt) {
+        System.out.println(prompt);
+        while (true) {
+            try {
+                return Long.parseLong(scanner.nextLine());
+            } catch (NumberFormatException e) {
+                System.out.println("Please enter a number.");
+            }
+        }
+    }
+
+
+
     public int promptForInt(String prompt) {
         System.out.print(prompt);
         while (true) {
@@ -113,11 +126,11 @@ public class ConsoleService {
             if (transfer.getToUsername().equals(authenticatedUser.getUser().getUsername())) {
                 System.out.println(transfer.getTransferId().toString().substring(1) +
                         "          From: " + transfer.getFromUsername() +
-                        "                 " + transfer.getTransferAmount());
+                        "                 $" + transfer.getTransferAmount());
             } else {
                 System.out.println(transfer.getTransferId().toString().substring(1) +
                         "            To: " + transfer.getToUsername() +
-                        "                 " + transfer.getTransferAmount());
+                        "                 $" + transfer.getTransferAmount());
             }
         }
         System.out.println("---------");
@@ -146,16 +159,20 @@ public class ConsoleService {
         return selectedTransfer;
     }
 
-    public void printTransfer(Transfer transfer, AuthenticatedUser fromUser) {
-        System.out.println("--------------------------------------------");
-        System.out.println("Transfer Details");
-        System.out.println("--------------------------------------------");
-        System.out.println("Id: " + transfer.getTransferId().toString().substring(2));
-        System.out.println("From: " + fromUser.getUser().getUsername());
-        System.out.println("To: " + transfer.getToUsername());
-        System.out.println("Type: " + convertTransferTypeToWord(transfer.getTransferType()));
-        System.out.println("Status: " + convertTransferStatusToWord(transfer.getTransferStatus()));
-        System.out.println("Amount: " + transfer.getTransferAmount());
+    public void printTransfer(Transfer transfer) {
+        if (transfer == null) {
+            System.out.println("This is not a valid transfer id, please select again.");
+        } else {
+            System.out.println("--------------------------------------------");
+            System.out.println("Transfer Details");
+            System.out.println("--------------------------------------------");
+            System.out.println("Id: " + transfer.getTransferId().toString().substring(2));
+            System.out.println("From: " + transfer.getFromUsername());
+            System.out.println("To: " + transfer.getToUsername());
+            System.out.println("Type: " + convertTransferTypeToWord(transfer.getTransferType()));
+            System.out.println("Status: " + convertTransferStatusToWord(transfer.getTransferStatus()));
+            System.out.println("Amount: $" + transfer.getTransferAmount());
+        }
     }
 
     public String convertTransferStatusToWord(Long id) {

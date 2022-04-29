@@ -21,7 +21,7 @@ public class JdbcTranferDao implements TransferDao {
 
 
     @Override
-    public boolean sendFunds(Transfer transfer, String username) {
+    public boolean logTransfer(Transfer transfer, String username) {
         JdbcUserDao jdbcUserDao = new JdbcUserDao(jdbcTemplate);
         JdbcAccountDao jdbcAccountDao = new JdbcAccountDao(jdbcTemplate.getDataSource());
 
