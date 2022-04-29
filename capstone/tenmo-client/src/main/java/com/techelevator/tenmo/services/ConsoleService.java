@@ -110,9 +110,9 @@ public class ConsoleService {
         for (Transfer transfer : transfers) {
             // if the current user's name is the same name as the destination account's
             // user name then the current user received those funds
-            if (authenticatedUser.getUser().getUsername().equals(transfer.getToUsername())) {
+            if (transfer.getToUsername().equals(authenticatedUser.getUser().getUsername())) {
                 System.out.println(transfer.getTransferId().toString().substring(1) +
-                        "          From: " + transfer.getToUsername() +
+                        "          From: " + transfer.getFromUsername() +
                         "                 " + transfer.getTransferAmount());
             } else {
                 System.out.println(transfer.getTransferId().toString().substring(1) +
@@ -123,6 +123,10 @@ public class ConsoleService {
         System.out.println("---------");
     }
 
+
+    public void printString(String word){
+        System.out.println(word);
+    }
 
     public void transferSuccess() {
         System.out.println("Transfer Successful!");

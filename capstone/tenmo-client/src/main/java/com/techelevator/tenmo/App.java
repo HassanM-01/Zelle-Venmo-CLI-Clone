@@ -145,11 +145,44 @@ public class App {
 
     private void sendBucks() {
         AccountServices accountServices = new AccountServices(API_BASE_URL, currentUser);
-        TransferService transferService = new TransferService(API_BASE_URL, currentUser);
 
         User[] users = accountServices.getUsers();
         consoleService.transferFundsPrompt(users);
+
         int userId = consoleService.promptForInt("Enter ID of user you are sending to (0 to cancel):");
+
+        Long parsedUserId = returnsUserIdLong(userId);
+        parsedUserId = verifyAccountExists(parsedUserId, users);
+        if (parsedUserId == 0){
+            consoleService.printString("The chosen account doesn't exist");
+            mainMenu();
+        }
+        BigDecimal transferAmount = consoleService.promptForBigDecimal("Enter amount: ");
+
+        Long transferType = Long.valueOf(1);
+
+        consoleService.printString(sendTransfer(parsedUserId,transferAmount, transferType));
+
+    }
+
+
+    public String sendTransfer(Long parsedUserId, BigDecimal transferAmount, Long transferType){
+        TransferService transferService = new TransferService(API_BASE_URL, currentUser);
+
+        Transfer transfer = new Transfer(parsedUserId, transferAmount, transferType);
+        if (transferService.sendFunds(transfer)) {
+            return "Transaction Successful!";
+        } else {
+            return "Transaction Failed!";
+        }
+
+    }
+
+
+
+
+    public Long returnsUserIdLong (int userId){
+
         if (userId == 0) {
             mainMenu();
         }
@@ -157,28 +190,22 @@ public class App {
             consoleService.printErrorMessage();
         }
         userId += 1000;
-        Long parsedUserId = Long.parseLong("" + userId);
-        verifyAccountExists(parsedUserId, users);
-        BigDecimal transferAmount = consoleService.promptForBigDecimal("Enter amount: ");
 
-        Long transferType = Long.valueOf(1);
-
-        Transfer transfer = new Transfer(parsedUserId, transferAmount, transferType);
-        if (transferService.sendFunds(transfer)) {
-            consoleService.transferSuccess();
-        } else {
-            consoleService.transferFailure();
-        }
-
+        return Long.parseLong("" + userId);
     }
 
-    public void verifyAccountExists(Long id, User[] users) {
+
+
+    public Long verifyAccountExists(Long id, User[] users) {
         for (User user : users) {
-            if(!user.getId().equals(id)) {
-                System.out.println("\nThis id is not associated with an account, please try again.\n");
-                sendBucks();
+            if(user.getId().equals(id)) {
+                return id;
             }
         }
+
+        System.out.println("\nThis id is not associated with an account, please try again.\n");
+
+        return Long.valueOf(0);
     }
 
     private void requestBucks() {

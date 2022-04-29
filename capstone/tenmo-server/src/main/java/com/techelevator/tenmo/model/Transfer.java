@@ -12,17 +12,27 @@ public class Transfer {
     private Long transferStatus;
     private Long transferId;
     private String toUsername;
+    private String fromUsername;
 
-    public Transfer(Long userId, BigDecimal transferAmount, Long transferType, Long transferStatus, Long transferId, String toUsername) {
+    public Transfer(Long userId, BigDecimal transferAmount, Long transferType, Long transferStatus, Long transferId, String toUsername, String fromUsername) {
         this.userId = userId;
         this.transferAmount = transferAmount;
         this.transferType = transferType;
         this.transferStatus = transferStatus;
         this.transferId = transferId;
         this.toUsername = toUsername;
+        this.fromUsername = fromUsername;
     }
 
     public Transfer(){}
+
+    public String getFromUsername() {
+        return fromUsername;
+    }
+
+    public void setFromUsername(String fromUsername) {
+        this.fromUsername = fromUsername;
+    }
 
     public String getToUsername() {
         return toUsername;
