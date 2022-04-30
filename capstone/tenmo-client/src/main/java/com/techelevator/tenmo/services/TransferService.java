@@ -45,14 +45,12 @@ public class TransferService {
         }
         return transfers;
     }
+
     private HttpEntity<Void> makeAuthEntity () {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(authenticatedUser.getToken());
         return new HttpEntity<>(headers);
     }
-
-
-
 
     private HttpEntity<Transfer> makeTransferEntity (Transfer transfer) {
         HttpHeaders headers = new HttpHeaders();

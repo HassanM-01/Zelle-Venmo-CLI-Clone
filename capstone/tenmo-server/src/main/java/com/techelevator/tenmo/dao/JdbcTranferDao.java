@@ -29,25 +29,20 @@ public class JdbcTranferDao implements TransferDao {
                 "account_from, account_to, amount) " +
                 "VALUES (2, 1, (SELECT account_id FROM account JOIN tenmo_user USING (user_id) WHERE username = ?), (SELECT account_id FROM account WHERE user_id = ?), ?) RETURNING transfer_id";
 
-
         Long id = jdbcTemplate.queryForObject(tranferLogSql, Long.class, username, transfer.getUserId(), transfer.getTransferAmount());
         int userId = jdbcUserDao.findIdByUsername(username);
         Long parsedUserId = Long.parseLong("" + userId);
 
         String updateSentSql = "UPDATE transfer SET transfer_status_id = 2 WHERE transfer_id = ?";
 
-
         if (jdbcAccountDao.sendFunds(transfer.getTransferAmount(), parsedUserId)) {
             jdbcAccountDao.recieveFunds(transfer.getTransferAmount(), transfer.getUserId());
             jdbcTemplate.update(updateSentSql, id);
             return true;
-
         } else {
-
             String updateTransferFailedSql = "UPDATE transfer SET transfer_status_id = 3 WHERE transfer_id = ?";
             jdbcTemplate.update(updateTransferFailedSql, id);
         }
-
         return false;
     }
 

@@ -79,11 +79,7 @@ public class App {
             if (menuSelection == 1) {
                 viewCurrentBalance();
             } else if (menuSelection == 2) {
-                Transfer[] transfers = getTransferHistory();
-                consoleService.transferHistory(currentUser, transfers);
-                Long id = getTransferIDFromUser();
-                Transfer transfer = verifyTransferExists(id, transfers);
-                consoleService.printTransfer(transfer);
+                viewTransfers();
             } else if (menuSelection == 3) {
                 viewPendingRequests();
             } else if (menuSelection == 4) {
@@ -99,17 +95,12 @@ public class App {
         }
     }
 
-    private void viewCurrentBalance() {
-        AccountServices accountServices = new AccountServices(API_BASE_URL, currentUser);
-        BigDecimal balance;
-        try {
-            balance = accountServices.returnBalance();
-            System.out.println(balance);
-        } catch (RestClientException e) {
-            System.out.println("No balance, you're broke :(");
-        } catch (Exception e) {
-            System.out.println(Arrays.toString(e.getStackTrace()));
-        }
+    public void viewTransfers() {
+        Transfer[] transfers = getTransferHistory();
+        consoleService.transferHistory(currentUser, transfers);
+        Long id = getTransferIDFromUser();
+        Transfer transfer = verifyTransferExists(id, transfers);
+        consoleService.printTransfer(transfer);
     }
 
     private Transfer[] getTransferHistory() {
@@ -127,20 +118,8 @@ public class App {
         return transferId;
     }
 
-    public Long returnsUserIdLong (Long userId){
-        if (userId == 0) {
-            mainMenu();
-        }
-        if (userId < 0) {
-            consoleService.printErrorMessage();
-        }
-        userId += 1000;
-
-        return userId;
-    }
-
     public Transfer verifyTransferExists(Long id, Transfer[] transfers) {
-       Transfer newTransfer = null;
+        Transfer newTransfer = null;
         for (Transfer transfer : transfers) {
             if(transfer.getTransferId().equals(id)) {
                 newTransfer = transfer;
@@ -149,59 +128,91 @@ public class App {
         return newTransfer;
     }
 
-    private void viewPendingRequests() {
-        // TODO Auto-generated method stub
-    }
-
-    private void sendBucks() {
+    private void viewCurrentBalance() {
         AccountServices accountServices = new AccountServices(API_BASE_URL, currentUser);
-
-        User[] users = accountServices.getUsers();
-        consoleService.transferFundsPrompt(users);
-
-        Long userId = consoleService.promptForLong("Enter ID of user you are sending to (0 to cancel):");
-
-        Long parsedUserId = returnsUserIdLong(userId);
-        parsedUserId = verifyAccountExists(parsedUserId, users);
-        if (parsedUserId == 0){
-            mainMenu();
+        BigDecimal balance;
+        try {
+            balance = accountServices.returnBalance();
+            System.out.println(balance);
+        } catch (RestClientException e) {
+            System.out.println("No balance, you're broke :(");
+        } catch (Exception e) {
+            System.out.println(Arrays.toString(e.getStackTrace()));
         }
-        BigDecimal transferAmount = consoleService.promptForBigDecimal("Enter amount: ");
-
-        Long transferType = Long.valueOf(1);
-
-        consoleService.printString(sendTransfer(parsedUserId,transferAmount, transferType));
-
     }
-
 
     public String sendTransfer(Long parsedUserId, BigDecimal transferAmount, Long transferType){
         TransferService transferService = new TransferService(API_BASE_URL, currentUser);
-
         Transfer transfer = new Transfer(parsedUserId, transferAmount, transferType);
         if (transferService.sendFunds(transfer)) {
             return "Transaction Successful!";
         } else {
             return "Transaction Failed!";
         }
-
     }
 
+    private void sendBucks() {
+        User[] listOfUsers = getUsers();
+        consoleService.transferFundsPrompt(listOfUsers);
+        Long destinationAccountsUserId = consoleService.promptForLong("Enter ID of user you are sending to (0 to cancel):");
+        Long verifiedUserId = verifyUserIdCorrespondsToAnAccount(destinationAccountsUserId, listOfUsers);
+        if (verifiedUserId == 0) {
+            mainMenu();
+        } else {
+            BigDecimal transferAmount = getPositiveTransferAmount();
+            Long transferType = (long) 1;
+            consoleService.printString(sendTransfer(verifiedUserId, transferAmount, transferType));
+        }
+    }
 
+    private User[] getUsers() {
+        AccountServices accountServices = new AccountServices(API_BASE_URL, currentUser);
+        return accountServices.getUsers();
+    }
 
-    public Long verifyAccountExists(Long id, User[] users) {
-        for (User user : users) {
-            if(user.getId().equals(id)) {
-                return id;
+    public Long verifyUserIdCorrespondsToAnAccount(Long id, User[] users) {
+        if (id == 0) {
+            mainMenu();
+        } else {
+            id += 1000;
+            for (User user : users) {
+                if(user.getId().equals(id)) {
+                    return id;
+                }
             }
         }
-        System.out.println("\nThis id is not associated with an account, please try again.\n");
-        return Long.valueOf(0);
+        consoleService.printString("\nThis id is not associated with an account, please try again.\n");
+        return (long) 0;
+    }
+
+    public BigDecimal getPositiveTransferAmount() {
+        BigDecimal transferAmount = consoleService.promptForBigDecimal("Enter amount: ");
+        while (transferAmount.compareTo(BigDecimal.ZERO) <= 0) {
+            transferAmount = consoleService.promptForBigDecimal("Please enter an amount greater than zero: ");
+        }
+        return transferAmount;
+    }
+
+    private void viewPendingRequests() {
+        // TODO Auto-generated method stub
     }
 
     private void requestBucks() {
         // TODO Auto-generated method stub
-
     }
-
 }
+
+
+
+
+//    public Long returnsUserIdLong (Long userId){
+//        if (userId == 0) {
+//            mainMenu();
+//        }
+//        if (userId < 0) {
+//            consoleService.printErrorMessage();
+//        }
+//        userId += 1000;
+//
+//        return userId;
+//    }
