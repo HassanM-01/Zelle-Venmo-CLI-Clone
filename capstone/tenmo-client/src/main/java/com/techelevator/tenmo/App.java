@@ -134,10 +134,8 @@ public class App {
         try {
             balance = accountServices.returnBalance();
             System.out.println(balance);
-        } catch (RestClientException e) {
-            System.out.println("No balance, you're broke :(");
         } catch (Exception e) {
-            System.out.println(Arrays.toString(e.getStackTrace()));
+            consoleService.printString("Failed to retrieve balance, please try again.");
         }
     }
 
@@ -202,17 +200,3 @@ public class App {
     }
 }
 
-
-
-
-//    public Long returnsUserIdLong (Long userId){
-//        if (userId == 0) {
-//            mainMenu();
-//        }
-//        if (userId < 0) {
-//            consoleService.printErrorMessage();
-//        }
-//        userId += 1000;
-//
-//        return userId;
-//    }
