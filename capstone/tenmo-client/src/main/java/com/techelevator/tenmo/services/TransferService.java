@@ -12,6 +12,7 @@ import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 
 public class TransferService {
 
@@ -35,7 +36,7 @@ public class TransferService {
         return success;
     }
 
-    public boolean requestTransfer(Transfer transfer) {
+    public boolean sendTranserRequest(Transfer transfer) {
         boolean success = false;
          HttpEntity<Transfer> entity = makeTransferEntity(transfer);
         try {
@@ -53,7 +54,7 @@ public class TransferService {
         try {
             transfers = restTemplate.exchange(API_BASE_URL + "tenmo/transfer/list", HttpMethod.GET, makeAuthEntity(), Transfer[].class).getBody();
         } catch (RestClientResponseException | ResourceAccessException e) {
-            BasicLogger.log(e.getMessage());
+            BasicLogger.log(Arrays.toString(e.getStackTrace()));
         }
         return transfers;
     }

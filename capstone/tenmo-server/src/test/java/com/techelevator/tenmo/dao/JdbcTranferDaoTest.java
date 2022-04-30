@@ -67,14 +67,15 @@ public class JdbcTranferDaoTest {
 
     @Test
     public void logTransfer() {
-        String username = "user1";
+        String currentUserName = "user1";
+        Long currentUserId = (long) 1010;
         Transfer newTransfer = new Transfer();
         newTransfer.setUserId((long) 1011);
         newTransfer.setTransferAmount(BigDecimal.valueOf(50.00));
         newTransfer.setTransferType((long) 1);
 
-        jdbcTranferDao.logTransfer(newTransfer, username);
-        List<Transfer> transfers = jdbcTranferDao.getTransfers(username);
+        jdbcTranferDao.logSendTransfer(newTransfer, currentUserId);
+        List<Transfer> transfers = jdbcTranferDao.getTransfers(currentUserName);
         int expected = 4;
         Assert.assertEquals(expected, transfers.size());
     }

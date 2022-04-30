@@ -8,12 +8,9 @@ import com.techelevator.tenmo.services.AccountServices;
 import com.techelevator.tenmo.services.AuthenticationService;
 import com.techelevator.tenmo.services.ConsoleService;
 import com.techelevator.tenmo.services.TransferService;
-import org.springframework.web.client.RestClientException;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class App {
 
@@ -25,7 +22,7 @@ public class App {
 
 
     private AuthenticatedUser currentUser;
-    private TransferService transferService = new TransferService(API_BASE_URL, currentUser);
+
 
 
     public static void main(String[] args) {
@@ -87,9 +84,9 @@ public class App {
             } else if (menuSelection == 3) {
                 viewTransfers((long) 1);
             } else if (menuSelection == 4) {
-                sendBucks((long)1);
+                sendOrRequestBucks((long) 2);
             } else if (menuSelection == 5) {
-                requestBucks();
+                sendOrRequestBucks((long) 1);
             } else if (menuSelection == 0) {
                 continue;
             } else {
@@ -113,7 +110,6 @@ public class App {
             Transfer transfer = verifyTransferExists(id, transfers);
             consoleService.printTransfer(transfer);
         }
-
     }
 
     private Transfer[] filterOutNonPendingTransfers(Transfer[] transfers) {
@@ -158,29 +154,28 @@ public class App {
     }
 
     public String sendTransfer(Long parsedUserId, BigDecimal transferAmount, Long transferType){
+        TransferService transferService = new TransferService(API_BASE_URL, currentUser);
         Transfer transfer = new Transfer(parsedUserId, transferAmount, transferType);
-        if (transfer.getTransferType() == 1){
-            if (transferService.sendFunds(transfer)) {
-                return "Transaction Successful!";
-            } else {
-                return "Transaction Failed!";
-            }
-        }
-        else {
-            if (transferService.requestTransfer(transfer)){
-                return "Request sent successfully!";
-            }else{
-                return "Request denied";
-            }
-        }
-
+          if (transfer.getTransferType() == 2) {
+              if (transferService.sendFunds(transfer)) {
+                  return "Transaction Successful!";
+              } else {
+                  return "Transaction Failed!";
+              }
+          } else {
+              if (transferService.sendTranserRequest(transfer)) {
+                  return "Request was sent!";
+              } else {
+                  return "Request was not sent :(";
+              }
+          }
     }
 
-    private void sendBucks(Long transferType) {
+    private void sendOrRequestBucks(Long transferType) {
         User[] listOfUsers = getUsers();
         consoleService.transferFundsPrompt(listOfUsers);
         Long destinationAccountsUserId;
-        if (transferType == 1){
+        if (transferType == 2){
             destinationAccountsUserId = consoleService.promptForLong("Enter ID of user you are sending to (0 to cancel): ");
         } else {
             destinationAccountsUserId = consoleService.promptForLong("Enter ID of user you are requesting from(0 to cancel): ");
@@ -190,14 +185,9 @@ public class App {
             mainMenu();
         } else {
             BigDecimal transferAmount = getPositiveTransferAmount();
-
-                consoleService.printString(sendTransfer(verifiedUserId, transferAmount, transferType));
-
-
+            consoleService.printString(sendTransfer(verifiedUserId, transferAmount, transferType));
         }
     }
-
-
 
     private User[] getUsers() {
         AccountServices accountServices = new AccountServices(API_BASE_URL, currentUser);
@@ -227,17 +217,13 @@ public class App {
         return transferAmount;
     }
 
-    private void acceptOrDeclinePendingRequests(Long transferId) {
-        consoleService.printPromptPendingRequests();
-        int choice = consoleService.promptForInt("");
-        switch (choice){
-            case 1: transferService.approveTransfer(transferId);
-
-        }
-    }
-
-    private void requestBucks() {
-        sendBucks((long)2);
-    }
+//    private void acceptOrDeclinePendingRequests(Long transferId) {
+//        consoleService.printPromptPendingRequests();
+//        int choice = consoleService.promptForInt("");
+//        switch (choice){
+//            case 1: transferService.approveTransfer(transferId);
+//
+//        }
+//    }
 }
 

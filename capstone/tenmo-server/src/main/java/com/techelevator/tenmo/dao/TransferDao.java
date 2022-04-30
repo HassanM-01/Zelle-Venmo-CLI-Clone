@@ -6,10 +6,14 @@ import java.util.List;
 
 public interface TransferDao {
 
-    public boolean logTransfer(Transfer transfer, String username);
+    public boolean logSendTransfer(Transfer transfer, Long currentUserId);
 
     public List<Transfer> getTransfers (String username);
 
     boolean logRequestTransfer(Long currentUserId, Transfer transfer);
+
+    void requestRejected(Long id);
+
+    boolean requestApproved(Transfer transfer, Long userId, Long transferId);
 
 }

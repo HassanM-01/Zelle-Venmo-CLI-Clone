@@ -22,30 +22,38 @@ public class JdbcTranferDao implements TransferDao {
 
 
     @Override
-    public boolean logTransfer(Transfer transfer, String username) {
-        JdbcUserDao jdbcUserDao = new JdbcUserDao(jdbcTemplate); //turns null if instantiated at the top of the class?? why?
-        JdbcAccountDao jdbcAccountDao = new JdbcAccountDao(jdbcTemplate.getDataSource());
-
+    public boolean logSendTransfer(Transfer transfer, Long currentUserId) {
         String tranferLogSql = "INSERT INTO transfer (transfer_type_id, transfer_status_id, " +
                 "account_from, account_to, amount) " +
-                "VALUES (2, 1, (SELECT account_id FROM account JOIN tenmo_user USING (user_id) WHERE username = ?), (SELECT account_id FROM account WHERE user_id = ?), ?) RETURNING transfer_id";
+                "VALUES (?, 1, (SELECT account_id FROM account WHERE user_id = ?), " +
+                "(SELECT account_id FROM account WHERE user_id = ?), ?) RETURNING transfer_id";
 
-        Long id = jdbcTemplate.queryForObject(tranferLogSql, Long.class, username, transfer.getUserId(), transfer.getTransferAmount());
-        int userId = jdbcUserDao.findIdByUsername(username);
-        Long parsedUserId = Long.parseLong("" + userId);
+        Long returnedTransferId = jdbcTemplate.queryForObject(tranferLogSql, Long.class, transfer.getTransferType(),
+                currentUserId, transfer.getUserId(), transfer.getTransferAmount());
 
+        return requestApproved(transfer, currentUserId, returnedTransferId);
+    }
 
+    @Override
+    public boolean requestApproved(Transfer transfer, Long currentUserId, Long returnedTransferId) {
+        JdbcAccountDao jdbcAccountDao = new JdbcAccountDao(jdbcTemplate.getDataSource());
+        // Query updates transfer to approved
         String updateSentSql = "UPDATE transfer SET transfer_status_id = 2 WHERE transfer_id = ?";
-
-        if (jdbcAccountDao.sendFunds(transfer.getTransferAmount(), parsedUserId)) {
+        if (jdbcAccountDao.sendFunds(transfer.getTransferAmount(), currentUserId)) {
             jdbcAccountDao.recieveFunds(transfer.getTransferAmount(), transfer.getUserId());
-            jdbcTemplate.update(updateSentSql, id);
+            jdbcTemplate.update(updateSentSql, returnedTransferId);
             return true;
         } else {
-            String updateTransferFailedSql = "UPDATE transfer SET transfer_status_id = 3 WHERE transfer_id = ?";
-            jdbcTemplate.update(updateTransferFailedSql, id);
+            requestRejected(returnedTransferId);
+            return false;
         }
-        return false;
+
+    }
+
+    @Override
+    public void requestRejected(Long transferId) {
+        String updateTransferFailedSql = "UPDATE transfer SET transfer_status_id = 3 WHERE transfer_id = ?";
+        jdbcTemplate.update(updateTransferFailedSql, transferId);
     }
 
     @Override
@@ -70,13 +78,11 @@ public class JdbcTranferDao implements TransferDao {
     @Override
     public boolean logRequestTransfer(Long currentUserId, Transfer transfer) {
         String sql = "INSERT INTO transfer (transfer_type_id, transfer_status_id, account_from, account_to, amount) " +
-                "VALUES (1, 1, (SELECT account_id FROM account JOIN tenmo_user USING (user_id) WHERE user_id = ?), " +
-                "(SELECT account_id FROM account JOIN tenmo_user USING (user_id) WHERE user_id = ?), ?)";
+                "VALUES (?, 1, (SELECT account_id FROM account WHERE user_id = ?), " +
+                "(SELECT account_id FROM account WHERE user_id = ?), ?)";
 
-        return jdbcTemplate.update(sql, transfer.getUserId(), currentUserId, transfer.getTransferAmount()) == 1;
+        return jdbcTemplate.update(sql, transfer.getTransferType(), transfer.getUserId(), currentUserId, transfer.getTransferAmount()) == 1;
     }
-
-
 
     private Transfer mapRowToTransfer (SqlRowSet rowSet){
         Transfer transfer = new Transfer();

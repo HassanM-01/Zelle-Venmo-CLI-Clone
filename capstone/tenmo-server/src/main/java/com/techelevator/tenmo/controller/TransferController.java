@@ -28,7 +28,8 @@ public class TransferController {
 
     @RequestMapping(path = "send", method = RequestMethod.POST)
     public boolean sendFunds(Principal principal, @RequestBody Transfer transfer) {
-        return transferDao.logTransfer(transfer, principal.getName());
+        Long currentUserId = (long) userDao.findIdByUsername(principal.getName());
+        return transferDao.logSendTransfer(transfer, currentUserId);
     }
 
     @RequestMapping (path = "list", method = RequestMethod.GET)
@@ -37,7 +38,7 @@ public class TransferController {
     }
 
     @RequestMapping (path = "request", method = RequestMethod.POST)
-    public boolean requestFunds (Principal principal, @RequestBody Transfer transfer) {
+   public boolean requestFunds (Principal principal, @RequestBody Transfer transfer) {
         Long currentUserId = (long) userDao.findIdByUsername(principal.getName());
         return transferDao.logRequestTransfer(currentUserId, transfer);
     }
