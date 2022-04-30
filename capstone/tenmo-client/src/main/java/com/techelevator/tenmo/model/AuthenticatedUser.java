@@ -17,4 +17,9 @@ public class AuthenticatedUser {
 	public void setUser(User user) {
 		this.user = user;
 	}
+
+	@Override
+	public String toString() {
+		return user.getUsername();
+	}
 }

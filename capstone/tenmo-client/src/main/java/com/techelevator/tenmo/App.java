@@ -117,7 +117,7 @@ public class App {
     }
 
     private Transfer[] filterOutNonPendingTransfers(Transfer[] transfers) {
-        return  Arrays.stream(transfers).filter(x->x.getTransferType().equals((long)1)).toArray(Transfer[]:: new);
+        return  Arrays.stream(transfers).filter(x->x.getTransferType().equals((long)1)&& !x.getFromUsername().equals(currentUser.toString())).toArray(Transfer[]:: new);
     }
 
     private Transfer[] getTransferHistory() {
