@@ -11,7 +11,9 @@ import com.techelevator.tenmo.services.TransferService;
 import org.springframework.web.client.RestClientException;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class App {
 
@@ -21,7 +23,9 @@ public class App {
     private final AuthenticationService authenticationService = new AuthenticationService(API_BASE_URL);
 
 
+
     private AuthenticatedUser currentUser;
+    private TransferService transferService = new TransferService(API_BASE_URL, currentUser);
 
 
     public static void main(String[] args) {
@@ -79,11 +83,11 @@ public class App {
             if (menuSelection == 1) {
                 viewCurrentBalance();
             } else if (menuSelection == 2) {
-                viewTransfers();
+                viewTransfers((long) 2);
             } else if (menuSelection == 3) {
-                viewPendingRequests();
+                viewTransfers((long) 1);
             } else if (menuSelection == 4) {
-                sendBucks();
+                sendBucks((long)1);
             } else if (menuSelection == 5) {
                 requestBucks();
             } else if (menuSelection == 0) {
@@ -95,17 +99,31 @@ public class App {
         }
     }
 
-    public void viewTransfers() {
+    public void viewTransfers(Long transferType) {
         Transfer[] transfers = getTransferHistory();
-        consoleService.transferHistory(currentUser, transfers);
-        Long id = getTransferIDFromUser();
-        Transfer transfer = verifyTransferExists(id, transfers);
-        consoleService.printTransfer(transfer);
+        if (transferType == 2){
+            consoleService.transferHistory(currentUser, transfers, "Transfers");
+            Long id = getTransferIDFromUser();
+            Transfer transfer = verifyTransferExists(id, transfers);
+            consoleService.printTransfer(transfer);
+        } else {
+            transfers = filterOutNonPendingTransfers (transfers);
+            consoleService.transferHistory(currentUser, transfers, "Pending Transfers");
+            Long id = getTransferIDFromUser();
+            Transfer transfer = verifyTransferExists(id, transfers);
+            consoleService.printTransfer(transfer);
+        }
+
+    }
+
+    private Transfer[] filterOutNonPendingTransfers(Transfer[] transfers) {
+        return  Arrays.stream(transfers).filter(x->x.getTransferType().equals((long)1)).toArray(Transfer[]:: new);
     }
 
     private Transfer[] getTransferHistory() {
         TransferService transferService = new TransferService(API_BASE_URL, currentUser);
-        return transferService.getTransfers();
+            return transferService.getTransfers();
+
     }
 
     public Long getTransferIDFromUser() {
@@ -140,28 +158,46 @@ public class App {
     }
 
     public String sendTransfer(Long parsedUserId, BigDecimal transferAmount, Long transferType){
-        TransferService transferService = new TransferService(API_BASE_URL, currentUser);
         Transfer transfer = new Transfer(parsedUserId, transferAmount, transferType);
-        if (transferService.sendFunds(transfer)) {
-            return "Transaction Successful!";
-        } else {
-            return "Transaction Failed!";
+        if (transfer.getTransferType() == 1){
+            if (transferService.sendFunds(transfer)) {
+                return "Transaction Successful!";
+            } else {
+                return "Transaction Failed!";
+            }
         }
+        else {
+            if (transferService.requestTransfer(transfer)){
+                return "Request sent successfully!";
+            }else{
+                return "Request denied";
+            }
+        }
+
     }
 
-    private void sendBucks() {
+    private void sendBucks(Long transferType) {
         User[] listOfUsers = getUsers();
         consoleService.transferFundsPrompt(listOfUsers);
-        Long destinationAccountsUserId = consoleService.promptForLong("Enter ID of user you are sending to (0 to cancel):");
+        Long destinationAccountsUserId;
+        if (transferType == 1){
+            destinationAccountsUserId = consoleService.promptForLong("Enter ID of user you are sending to (0 to cancel): ");
+        } else {
+            destinationAccountsUserId = consoleService.promptForLong("Enter ID of user you are requesting from(0 to cancel): ");
+        }
         Long verifiedUserId = verifyUserIdCorrespondsToAnAccount(destinationAccountsUserId, listOfUsers);
         if (verifiedUserId == 0) {
             mainMenu();
         } else {
             BigDecimal transferAmount = getPositiveTransferAmount();
-            Long transferType = (long) 1;
-            consoleService.printString(sendTransfer(verifiedUserId, transferAmount, transferType));
+
+                consoleService.printString(sendTransfer(verifiedUserId, transferAmount, transferType));
+
+
         }
     }
+
+
 
     private User[] getUsers() {
         AccountServices accountServices = new AccountServices(API_BASE_URL, currentUser);
@@ -191,12 +227,17 @@ public class App {
         return transferAmount;
     }
 
-    private void viewPendingRequests() {
-        // TODO Auto-generated method stub
+    private void acceptOrDeclinePendingRequests(Long transferId) {
+        consoleService.printPromptPendingRequests();
+        int choice = consoleService.promptForInt("");
+        switch (choice){
+            case 1: transferService.approveTransfer(transferId);
+
+        }
     }
 
     private void requestBucks() {
-        // TODO Auto-generated method stub
+        sendBucks((long)2);
     }
 }
 

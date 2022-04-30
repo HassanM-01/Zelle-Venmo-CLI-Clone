@@ -17,12 +17,13 @@ public class JdbcTranferDao implements TransferDao {
     public JdbcTranferDao(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
+
     //might need to add datasource
 
 
     @Override
     public boolean logTransfer(Transfer transfer, String username) {
-        JdbcUserDao jdbcUserDao = new JdbcUserDao(jdbcTemplate);
+        JdbcUserDao jdbcUserDao = new JdbcUserDao(jdbcTemplate); //turns null if instantiated at the top of the class?? why?
         JdbcAccountDao jdbcAccountDao = new JdbcAccountDao(jdbcTemplate.getDataSource());
 
         String tranferLogSql = "INSERT INTO transfer (transfer_type_id, transfer_status_id, " +
@@ -32,6 +33,7 @@ public class JdbcTranferDao implements TransferDao {
         Long id = jdbcTemplate.queryForObject(tranferLogSql, Long.class, username, transfer.getUserId(), transfer.getTransferAmount());
         int userId = jdbcUserDao.findIdByUsername(username);
         Long parsedUserId = Long.parseLong("" + userId);
+
 
         String updateSentSql = "UPDATE transfer SET transfer_status_id = 2 WHERE transfer_id = ?";
 
@@ -64,6 +66,17 @@ public class JdbcTranferDao implements TransferDao {
         }
         return transfers;
     }
+
+    @Override
+    public boolean logRequestTransfer(Long currentUserId, Transfer transfer) {
+        String sql = "INSERT INTO transfer (transfer_type_id, transfer_status_id, account_from, account_to, amount) " +
+                "VALUES (1, 1, (SELECT account_id FROM account JOIN tenmo_user USING (user_id) WHERE user_id = ?), " +
+                "(SELECT account_id FROM account JOIN tenmo_user USING (user_id) WHERE user_id = ?), ?)";
+
+        return jdbcTemplate.update(sql, transfer.getUserId(), currentUserId, transfer.getTransferAmount()) == 1;
+    }
+
+
 
     private Transfer mapRowToTransfer (SqlRowSet rowSet){
         Transfer transfer = new Transfer();

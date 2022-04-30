@@ -72,7 +72,6 @@ public class ConsoleService {
     }
 
 
-
     public int promptForInt(String prompt) {
         System.out.print(prompt);
         while (true) {
@@ -115,9 +114,9 @@ public class ConsoleService {
         System.out.println("---------");
     }
 
-    public void transferHistory(AuthenticatedUser authenticatedUser, Transfer[] transfers) {
+    public void transferHistory(AuthenticatedUser authenticatedUser, Transfer[] transfers, String prompt) {
         System.out.println("-------------------------------------------");
-        System.out.println("Transfers");
+        System.out.println(prompt);
         System.out.println("ID              Name                 Amount");
         System.out.println("-------------------------------------------");
         for (Transfer transfer : transfers) {
@@ -175,6 +174,14 @@ public class ConsoleService {
         }
     }
 
+    public void printPromptPendingRequests() {
+        System.out.println("1: Approve");
+        System.out.println("2: Reject");
+        System.out.println("3: Don't approve or reject");
+        System.out.println("---------");
+        System.out.println("Please choose an option: ");
+    }
+
     public String convertTransferStatusToWord(Long id) {
         if (id == 1) {
             return "Pending";
@@ -192,5 +199,7 @@ public class ConsoleService {
             return "Send";
         }
     }
+
+
 
 }

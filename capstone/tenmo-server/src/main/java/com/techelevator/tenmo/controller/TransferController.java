@@ -36,6 +36,12 @@ public class TransferController {
         return transferDao.getTransfers(principal.getName());
     }
 
+    @RequestMapping (path = "request", method = RequestMethod.POST)
+    public boolean requestFunds (Principal principal, @RequestBody Transfer transfer) {
+        Long currentUserId = (long) userDao.findIdByUsername(principal.getName());
+        return transferDao.logRequestTransfer(currentUserId, transfer);
+    }
+
 
 
 

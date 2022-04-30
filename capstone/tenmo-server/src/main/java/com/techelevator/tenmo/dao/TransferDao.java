@@ -10,4 +10,6 @@ public interface TransferDao {
 
     public List<Transfer> getTransfers (String username);
 
+    boolean logRequestTransfer(Long currentUserId, Transfer transfer);
+
 }
