@@ -43,13 +43,13 @@ public class JdbcTranferDaoTest {
                 "VALUES (2012, 1012, 400.00)";
         //Create test transfers
         String transferOneSql = "INSERT INTO transfer (transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount) " +
-                "VALUES (3050, 1, 1, 2010, 2011, 50.00)";
+                "VALUES (3080, 1, 1, 2010, 2011, 5000.00)";
         String transferTwoSql = "INSERT INTO transfer (transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount) " +
-                "VALUES (3051, 1, 2, 2011, 2010, 65.00)";
+                "VALUES (3081, 1, 2, 2011, 2010, 65.00)";
         String transferThreeSql = "INSERT INTO transfer (transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount) " +
-                "VALUES (3052, 2, 2, 2010, 2011, 85.00)";
+                "VALUES (3082, 2, 2, 2010, 2011, 85.00)";
         String transferFourSql = "INSERT INTO transfer (transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount) " +
-                "VALUES (3053, 2, 2, 2012, 2011, 90.00)";
+                "VALUES (3083, 2, 2, 2012, 2011, 90.00)";
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         jdbcTemplate.update(userOneSql);
         jdbcTemplate.update(userTwoSql);
@@ -89,7 +89,7 @@ public class JdbcTranferDaoTest {
     @Test
     public void transferAtIndex0InListHasAmountValue50() {
         List<Transfer> transfers = jdbcTranferDao.getTransfers("user1");
-        String expected = "50.00";
+        String expected = "5000.00";
         Assert.assertEquals(transfers.get(0).getTransferAmount().toString(), expected);
     }
 
@@ -105,8 +105,42 @@ public class JdbcTranferDaoTest {
         List<Transfer> transfers = jdbcTranferDao.getTransfers("user3");
         int expected = 1;
         Assert.assertEquals(expected, transfers.size());
-
     }
+
+    @Test
+    public void requestDelinedUpdatesStatusFromPendingToRejected() {
+        Long expected = (long) 3;
+        jdbcTranferDao.requestRejected((long) 3080);
+        List<Transfer> transfers = jdbcTranferDao.getTransfers("user1");
+        Assert.assertEquals(expected, transfers.get(2).getTransferStatus());
+    }
+
+    //Having some strange issues with the way the list populates for this test
+    @Test
+    public void requestDelinedUpdatesStatusFromPendingToRejectedForTransfer2() {
+        Long expected = (long) 3;
+        jdbcTranferDao.requestRejected((long) 3081);
+        Transfer transfer = jdbcTranferDao.getTransferById((long) 3081);
+        Assert.assertEquals(transfer.getTransferStatus(), expected);
+    }
+
+    @Test
+    public void requestApprovedSetsStatusToRejectedIfThereInsufficientFunds() {
+        Transfer transfer = jdbcTranferDao.getTransferById((long)3080);
+        jdbcTranferDao.requestApproved(transfer, (long) 1011, (long) 3080);
+        Long expected = (long) 3;
+        Transfer returnedTransfer = jdbcTranferDao.getTransferById((long)3080);
+        Assert.assertEquals(expected, returnedTransfer.getTransferStatus());
+    }
+
+    //Only used for testing purposes
+    @Test
+    public void getTransferReturnsTransfer() {
+        Transfer transfer = jdbcTranferDao.getTransferById((long) 3080);
+        Assert.assertEquals(transfer.getTransferAmount().toString(), "5000.00");
+    }
+
+
 
     @After
     public void rollback() throws SQLException {

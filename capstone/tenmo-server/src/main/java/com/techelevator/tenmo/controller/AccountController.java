@@ -5,6 +5,8 @@ import com.techelevator.tenmo.dao.AccountDao;
 import com.techelevator.tenmo.dao.JdbcUserDao;
 import com.techelevator.tenmo.dao.UserDao;
 import com.techelevator.tenmo.model.User;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -27,11 +29,13 @@ public class AccountController {
         this.userDao = userDao;
     }
 
+    @ApiOperation(value = "Retrieves current balance based on current user")
     @RequestMapping (path = "balance", method = RequestMethod.GET)
     public BigDecimal getBalance (Principal principal) {
         return accountDao.getBalance(principal.getName());
     }
 
+    @ApiOperation(value = "Returns list of registered users that doesn't include current user")
     @RequestMapping(path = "users/list", method = RequestMethod.GET)
     public List<User> getAllUsers (Principal principal) {
         return userDao.findAll(principal.getName());
