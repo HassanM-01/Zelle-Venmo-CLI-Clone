@@ -40,7 +40,9 @@ public class JdbcTranferDao implements TransferDao {
         // Query updates transfer to approved
         String updateSentSql = "UPDATE transfer SET transfer_status_id = 2 WHERE transfer_id = ?";
         if (jdbcAccountDao.sendFunds(transfer.getTransferAmount(), currentUserId)) {
-            jdbcAccountDao.recieveFunds(transfer.getTransferAmount(), transfer.getUserId());
+
+                jdbcAccountDao.recieveFunds(transfer.getTransferAmount(), transfer.getUserId());
+
             jdbcTemplate.update(updateSentSql, returnedTransferId);
             return true;
         } else {
@@ -51,9 +53,9 @@ public class JdbcTranferDao implements TransferDao {
     }
 
     @Override
-    public void requestRejected(Long transferId) {
+    public boolean requestRejected(Long transferId) {
         String updateTransferFailedSql = "UPDATE transfer SET transfer_status_id = 3 WHERE transfer_id = ?";
-        jdbcTemplate.update(updateTransferFailedSql, transferId);
+        return jdbcTemplate.update(updateTransferFailedSql, transferId) == 1;
     }
 
     @Override
@@ -64,6 +66,7 @@ public class JdbcTranferDao implements TransferDao {
                 ", transfer_status_id " + ", amount " +
                 ", (SELECT username FROM tenmo_user JOIN account USING (user_id) WHERE account_id = transfer.account_from) AS user_from " +
                 ", (SELECT username FROM tenmo_user JOIN account USING (user_id) WHERE account_id = transfer.account_to) AS user_to " +
+                ", (SELECT user_id FROM account WHERE account_id = transfer.account_to) AS user_id " +
                 "FROM transfer " +
                 "WHERE account_from = (SELECT account_id FROM account JOIN tenmo_user USING (user_id) WHERE username = ?) " +
                 "OR account_to = (SELECT account_id FROM account JOIN tenmo_user USING (user_id) WHERE username = ?)";
@@ -92,6 +95,7 @@ public class JdbcTranferDao implements TransferDao {
         transfer.setTransferAmount(rowSet.getBigDecimal("amount"));
         transfer.setToUsername(rowSet.getString("user_to"));
         transfer.setFromUsername(rowSet.getString("user_from"));
+        transfer.setUserId(rowSet.getLong("user_id"));
         return transfer;
     }
 

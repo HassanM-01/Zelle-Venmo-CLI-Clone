@@ -130,6 +130,7 @@ public class ConsoleService {
                 System.out.println(transfer.getTransferId().toString().substring(1) +
                         "            To: " + transfer.getToUsername() +
                         "                 $" + transfer.getTransferAmount());
+
             }
         }
         System.out.println("---------");
@@ -171,10 +172,12 @@ public class ConsoleService {
             System.out.println("Type: " + convertTransferTypeToWord(transfer.getTransferType()));
             System.out.println("Status: " + convertTransferStatusToWord(transfer.getTransferStatus()));
             System.out.println("Amount: $" + transfer.getTransferAmount());
+
         }
     }
 
     public void printPromptPendingRequests() {
+        System.out.println("---------");
         System.out.println("1: Approve");
         System.out.println("2: Reject");
         System.out.println("3: Don't approve or reject");

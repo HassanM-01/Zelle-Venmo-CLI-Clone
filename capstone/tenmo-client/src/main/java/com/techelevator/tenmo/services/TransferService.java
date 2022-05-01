@@ -59,9 +59,27 @@ public class TransferService {
         return transfers;
     }
 
-    public boolean approveTransfer(Long transferId) {
+    public boolean approveTransfer(Transfer transfer) {
         boolean success = false;
+        HttpEntity<Transfer> entity = makeTransferEntity(transfer);
+        try {
+            success = restTemplate.exchange(API_BASE_URL + "tenmo/transfer/approve", HttpMethod.PUT, entity, Boolean.class).getBody();
+        } catch (RestClientResponseException | ResourceAccessException e) {
+            BasicLogger.log(e.getMessage());
+        }
         return success;
+    }
+
+    public boolean declineTransfer(Transfer transfer) {
+        boolean success = false;
+        HttpEntity<Transfer> entity = makeTransferEntity(transfer);
+        try {
+            success = restTemplate.exchange(API_BASE_URL + "tenmo/transfer/decline", HttpMethod.PUT, entity, Boolean.class).getBody();
+        } catch (RestClientResponseException | ResourceAccessException e) {
+            BasicLogger.log(e.getMessage());
+        }
+        return success;
+
     }
 
     private HttpEntity<Void> makeAuthEntity () {

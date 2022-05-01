@@ -12,7 +12,7 @@ public interface TransferDao {
 
     boolean logRequestTransfer(Long currentUserId, Transfer transfer);
 
-    void requestRejected(Long id);
+    boolean requestRejected(Long id);
 
     boolean requestApproved(Transfer transfer, Long userId, Long transferId);
 

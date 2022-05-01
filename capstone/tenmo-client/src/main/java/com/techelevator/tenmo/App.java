@@ -109,11 +109,14 @@ public class App {
             Long id = getTransferIDFromUser();
             Transfer transfer = verifyTransferExists(id, transfers);
             consoleService.printTransfer(transfer);
+            acceptOrDeclinePendingRequests(transfer);
         }
     }
 
     private Transfer[] filterOutNonPendingTransfers(Transfer[] transfers) {
-        return  Arrays.stream(transfers).filter(x->x.getTransferType().equals((long)1)&& !x.getFromUsername().equals(currentUser.toString())).toArray(Transfer[]:: new);
+        return  Arrays.stream(transfers).filter(x->x.getTransferType().equals((long)1)
+                && !x.getFromUsername().equals(currentUser.toString())
+                && (x.getTransferStatus().equals((long)1))).toArray(Transfer[]:: new);
     }
 
     private Transfer[] getTransferHistory() {
@@ -217,13 +220,24 @@ public class App {
         return transferAmount;
     }
 
-//    private void acceptOrDeclinePendingRequests(Long transferId) {
-//        consoleService.printPromptPendingRequests();
-//        int choice = consoleService.promptForInt("");
-//        switch (choice){
-//            case 1: transferService.approveTransfer(transferId);
-//
-//        }
-//    }
+    private void acceptOrDeclinePendingRequests(Transfer transfer) {
+        TransferService transferService = new TransferService(API_BASE_URL, currentUser);
+        consoleService.printPromptPendingRequests();
+        int choice = consoleService.promptForInt("");
+        switch (choice){
+            case 1: if (transferService.approveTransfer(transfer)){
+                System.out.println("This transaction has been approved!");
+            } else {
+                System.out.println("This transaction could not be approved");
+            }
+                break;
+            case 2 : transferService.declineTransfer(transfer);
+                System.out.println("This transaction was successfully declined");
+                break;
+            case 3 : mainMenu();
+                break;
+            default: mainMenu();
+        }
+    }
 }
 

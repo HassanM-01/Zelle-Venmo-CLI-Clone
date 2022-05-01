@@ -43,8 +43,16 @@ public class TransferController {
         return transferDao.logRequestTransfer(currentUserId, transfer);
     }
 
+    @RequestMapping (path = "approve", method = RequestMethod.PUT)
+    public boolean approveRequest (Principal principal, @RequestBody Transfer transfer){
+        Long currentUserId = (long) userDao.findIdByUsername(principal.getName());
+        return transferDao.requestApproved(transfer, currentUserId, transfer.getTransferId());
+    }
 
-
+    @RequestMapping (path = "decline", method = RequestMethod.PUT)
+    public boolean declineRequest (@RequestBody Transfer transfer) {
+       return transferDao.requestRejected(transfer.getTransferId());
+    }
 
 
 
