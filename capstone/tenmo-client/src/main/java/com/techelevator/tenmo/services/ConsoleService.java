@@ -71,7 +71,6 @@ public class ConsoleService {
         }
     }
 
-
     public int promptForInt(String prompt) {
         System.out.print(prompt);
         while (true) {
@@ -114,49 +113,50 @@ public class ConsoleService {
         System.out.println("---------");
     }
 
-    public void transferHistory(AuthenticatedUser authenticatedUser, Transfer[] transfers, String prompt) {
-        System.out.println("-------------------------------------------");
-        System.out.println(prompt);
-        System.out.println("ID              Name                 Amount");
-        System.out.println("-------------------------------------------");
-        for (Transfer transfer : transfers) {
-            // if the current user's name is the same name as the destination account's
-            // user name then the current user received those funds
-            if (transfer.getToUsername().equals(authenticatedUser.getUser().getUsername())) {
-                System.out.println(transfer.getTransferId().toString().substring(1) +
-                        "          From: " + transfer.getFromUsername() +
-                        "                 $" + transfer.getTransferAmount());
-            } else {
-                System.out.println(transfer.getTransferId().toString().substring(1) +
-                        "            To: " + transfer.getToUsername() +
-                        "                 $" + transfer.getTransferAmount());
-
+    public void printFullTransferHistory(AuthenticatedUser authenticatedUser, Transfer[] transfers) {
+        if (transfers.length == 0) {
+            System.out.println("\n*No pending transfers!*\n");
+        } else {
+            System.out.println("-------------------------------------------");
+            System.out.println("Transfers");
+            System.out.println("ID              Name                 Amount");
+            System.out.println("-------------------------------------------");
+            for (Transfer transfer : transfers) {
+                // if the current user's name is the same name as the destination account's
+                // user name then the current user received those funds
+                if (transfer.getToUsername().equals(authenticatedUser.getUser().getUsername())) {
+                    System.out.println(transfer.getTransferId().toString().substring(1) +
+                            "          From: " + transfer.getFromUsername() +
+                            "              $" + transfer.getTransferAmount());
+                } else {
+                    System.out.println(transfer.getTransferId().toString().substring(1) +
+                            "            To: " + transfer.getToUsername() +
+                            "              $" + transfer.getTransferAmount());
+                }
             }
+            System.out.println("---------");
         }
-        System.out.println("---------");
     }
 
+    public void printPendingTransfers(Transfer[] transfers) {
+        if (transfers.length == 0) {
+            System.out.println("\n*No pending transfers!*\n");
+        } else {
+            System.out.println("-------------------------------------------");
+            System.out.println("Pending Transfers");
+            System.out.println("ID            To                   Amount");
+            System.out.println("-------------------------------------------");
+            for (Transfer transfer : transfers) {
+                System.out.println(transfer.getTransferId().toString().substring(1) +
+                        "          " + transfer.getToUsername() + "                $"
+                        + transfer.getTransferAmount());
+            }
+            System.out.println("---------");
+        }
+    }
 
     public void printString(String word){
         System.out.println(word);
-    }
-
-    public void transferSuccess() {
-        System.out.println("Transfer Successful!");
-    }
-
-    public void transferFailure() {
-        System.out.println("Transfer failed to complete. Make sure you enter a positive number and have sufficient funds!");
-    }
-
-    public Transfer displayTransfer(int selectedTransferId, Transfer[] transfers) {
-        Transfer selectedTransfer = null;
-        for (Transfer transfer : transfers) {
-            if (transfer.getTransferId() == selectedTransferId) {
-                selectedTransfer = transfer;
-            }
-        }
-        return selectedTransfer;
     }
 
     public void printTransfer(Transfer transfer) {
@@ -202,7 +202,4 @@ public class ConsoleService {
             return "Send";
         }
     }
-
-
-
 }

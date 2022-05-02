@@ -29,7 +29,7 @@ public class JdbcTranferDao implements TransferDao {
                 "(SELECT account_id FROM account WHERE user_id = ?), ?) RETURNING transfer_id";
 
         Long returnedTransferId = jdbcTemplate.queryForObject(tranferLogSql, Long.class, transfer.getTransferType(),
-                currentUserId, transfer.getUserId(), transfer.getTransferAmount());
+                currentUserId, transfer.getUserIdOfDestinationAccount(), transfer.getTransferAmount());
 
         return requestApproved(transfer, currentUserId, returnedTransferId);
     }
@@ -40,7 +40,7 @@ public class JdbcTranferDao implements TransferDao {
         // Query updates transfer to approved
         String updateSentSql = "UPDATE transfer SET transfer_status_id = 2 WHERE transfer_id = ?";
         if (jdbcAccountDao.sendFunds(transfer.getTransferAmount(), currentUserId)) {
-            jdbcAccountDao.recieveFunds(transfer.getTransferAmount(), transfer.getUserId());
+            jdbcAccountDao.recieveFunds(transfer.getTransferAmount(), transfer.getUserIdOfDestinationAccount());
             jdbcTemplate.update(updateSentSql, returnedTransferId);
             return true;
         } else {
@@ -99,7 +99,7 @@ public class JdbcTranferDao implements TransferDao {
                 "VALUES (?, 1, (SELECT account_id FROM account WHERE user_id = ?), " +
                 "(SELECT account_id FROM account WHERE user_id = ?), ?)";
 
-        return jdbcTemplate.update(sql, transfer.getTransferType(), transfer.getUserId(), currentUserId, transfer.getTransferAmount()) == 1;
+        return jdbcTemplate.update(sql, transfer.getTransferType(), transfer.getUserIdOfDestinationAccount(), currentUserId, transfer.getTransferAmount()) == 1;
     }
 
     private Transfer mapRowToTransfer (SqlRowSet rowSet){
@@ -110,7 +110,7 @@ public class JdbcTranferDao implements TransferDao {
         transfer.setTransferAmount(rowSet.getBigDecimal("amount"));
         transfer.setToUsername(rowSet.getString("user_to"));
         transfer.setFromUsername(rowSet.getString("user_from"));
-        transfer.setUserId(rowSet.getLong("user_id"));
+        transfer.setUserIdOfDestinationAccount(rowSet.getLong("user_id"));
         return transfer;
     }
 

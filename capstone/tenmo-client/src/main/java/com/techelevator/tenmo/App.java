@@ -19,11 +19,7 @@ public class App {
     private final ConsoleService consoleService = new ConsoleService();
     private final AuthenticationService authenticationService = new AuthenticationService(API_BASE_URL);
 
-
-
     private AuthenticatedUser currentUser;
-
-
 
     public static void main(String[] args) {
         App app = new App();
@@ -80,9 +76,9 @@ public class App {
             if (menuSelection == 1) {
                 viewCurrentBalance();
             } else if (menuSelection == 2) {
-                viewTransfers((long) 2);
+                viewTransfers();
             } else if (menuSelection == 3) {
-                viewTransfers((long) 1);
+                viewPendingTransfers();
             } else if (menuSelection == 4) {
                 sendOrRequestBucks((long) 2);
             } else if (menuSelection == 5) {
@@ -96,49 +92,57 @@ public class App {
         }
     }
 
-    public void viewTransfers(Long transferType) {
+    public void viewTransfers() {
         Transfer[] transfers = getTransferHistory();
-        if (transferType == 2){
-            consoleService.transferHistory(currentUser, transfers, "Transfers");
-            Long id = getTransferIDFromUser();
-            Transfer transfer = verifyTransferExists(id, transfers);
-            consoleService.printTransfer(transfer);
+        consoleService.printFullTransferHistory(currentUser, transfers);
+
+        Long transferIDFromUser = getTransferIDFromUser();
+        if (transferIDFromUser <= 3000) {
+            mainMenu();
         } else {
-            transfers = filterOutNonPendingTransfers (transfers);
-            consoleService.transferHistory(currentUser, transfers, "Pending Transfers");
-            Long id = getTransferIDFromUser();
-            Transfer transfer = verifyTransferExists(id, transfers);
+            Transfer transfer = verifyTransferExists(transferIDFromUser, transfers);
+            consoleService.printTransfer(transfer);
+        }
+    }
+
+    public void viewPendingTransfers() {
+        Transfer[] transfers = getTransferHistory();
+        transfers = filterOutNonPendingTransfers(transfers);
+
+        consoleService.printPendingTransfers(transfers);
+
+        Long transferId = getTransferIDFromUser();
+        if (transferId <= 3000) {
+            mainMenu();
+        } else {
+            Transfer transfer = verifyTransferExists(transferId, transfers);
+
             consoleService.printTransfer(transfer);
             acceptOrDeclinePendingRequests(transfer);
         }
     }
 
     private Transfer[] filterOutNonPendingTransfers(Transfer[] transfers) {
-        return  Arrays.stream(transfers).filter(x->x.getTransferType().equals((long)1)
-                && !x.getToUsername().equals(currentUser.toString())
-                && (x.getTransferStatus().equals((long)1))).toArray(Transfer[]:: new);
+        return Arrays.stream(transfers)
+                .filter(x -> x.getTransferType().equals((long) 1)
+                        && !x.getToUsername().equals(currentUser.toString())
+                        && (x.getTransferStatus().equals((long) 1))).toArray(Transfer[]::new);
     }
 
     private Transfer[] getTransferHistory() {
         TransferService transferService = new TransferService(API_BASE_URL, currentUser);
-            return transferService.getTransfers();
-
+        return transferService.getTransfers();
     }
 
     public Long getTransferIDFromUser() {
         Long transferId = consoleService.promptForLong("Please enter transfer ID to view details (0 to cancel): ");
-        if (transferId == 0) {
-            mainMenu();
-        } else {
-            transferId += 3000;
-        }
-        return transferId;
+        return transferId + 3000;
     }
 
     public Transfer verifyTransferExists(Long id, Transfer[] transfers) {
         Transfer newTransfer = null;
         for (Transfer transfer : transfers) {
-            if(transfer.getTransferId().equals(id)) {
+            if (transfer.getTransferId().equals(id)) {
                 newTransfer = transfer;
             }
         }
@@ -150,35 +154,35 @@ public class App {
         BigDecimal balance;
         try {
             balance = accountServices.returnBalance();
-            System.out.println(balance);
+            consoleService.printString("Your current account balance is: $" + balance);
         } catch (Exception e) {
             consoleService.printString("Failed to retrieve balance, please try again.");
         }
     }
 
-    public String sendTransfer(Long parsedUserId, BigDecimal transferAmount, Long transferType){
+    public String sendTransfer(Long parsedUserId, BigDecimal transferAmount, Long transferType) {
         TransferService transferService = new TransferService(API_BASE_URL, currentUser);
         Transfer transfer = new Transfer(parsedUserId, transferAmount, transferType);
-          if (transfer.getTransferType() == 2) {
-              if (transferService.sendFunds(transfer)) {
-                  return "Transaction Successful!";
-              } else {
-                  return "Transaction Failed!";
-              }
-          } else {
-              if (transferService.sendTranserRequest(transfer)) {
-                  return "Request was sent!";
-              } else {
-                  return "Request was not sent :(";
-              }
-          }
+        if (transfer.getTransferType() == 2) {
+            if (transferService.sendFunds(transfer)) {
+                return "Transaction Successful!";
+            } else {
+                return "Insufficient funds!";
+            }
+        } else {
+            if (transferService.sendTranserRequest(transfer)) {
+                return "Request was sent!";
+            } else {
+                return "Request was not sent :(";
+            }
+        }
     }
 
     private void sendOrRequestBucks(Long transferType) {
         User[] listOfUsers = getUsers();
         consoleService.transferFundsPrompt(listOfUsers);
         Long destinationAccountsUserId;
-        if (transferType == 2){
+        if (transferType == 2) {
             destinationAccountsUserId = consoleService.promptForLong("Enter ID of user you are sending to (0 to cancel): ");
         } else {
             destinationAccountsUserId = consoleService.promptForLong("Enter ID of user you are requesting from(0 to cancel): ");
@@ -203,7 +207,7 @@ public class App {
         } else {
             id += 1000;
             for (User user : users) {
-                if(user.getId().equals(id)) {
+                if (user.getId().equals(id)) {
                     return id;
                 }
             }
@@ -224,19 +228,20 @@ public class App {
         TransferService transferService = new TransferService(API_BASE_URL, currentUser);
         consoleService.printPromptPendingRequests();
         int choice = consoleService.promptForInt("");
-        switch (choice){
-            case 1: if (transferService.approveTransfer(transfer)){
-                System.out.println("This transaction has been approved!");
-            } else {
-                System.out.println("This transaction could not be approved");
-            }
+        switch (choice) {
+            case 1:
+                if (transferService.approveTransfer(transfer)) {
+                    consoleService.printString("This transaction has been approved!");
+                } else {
+                    consoleService.printString("This transaction could not be approved");
+                }
                 break;
-            case 2 : transferService.declineTransfer(transfer);
-                System.out.println("This transaction was successfully declined");
+            case 2:
+                transferService.declineTransfer(transfer);
+                consoleService.printString("This transaction was successfully declined");
                 break;
-            case 3 : mainMenu();
-                break;
-            default: mainMenu();
+            default:
+                mainMenu();
         }
     }
 }

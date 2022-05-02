@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 
 public class Transfer {
 
-    private Long userId;
+    private Long userIdOfDestinationAccount;
     private BigDecimal transferAmount;
     private Long transferType;
     private Long transferId;
@@ -12,17 +12,17 @@ public class Transfer {
     private String toUsername;
     private String fromUsername;
 
-    public Transfer(Long userId, BigDecimal transferAmount, Long transferType) {
-        this.userId = userId;
+    public Transfer(Long userIdOfDestinationAccount, BigDecimal transferAmount, Long transferType) {
+        this.userIdOfDestinationAccount = userIdOfDestinationAccount;
         this.transferAmount = transferAmount;
         this.transferType = transferType;
     }
 
-    public Transfer (BigDecimal transferAmount, Long transferStatus,Long transferType, Long userId, Long transferId, String fromUsername){
+    public Transfer (BigDecimal transferAmount, Long transferStatus, Long transferType, Long userIdOfDestinationAccount, Long transferId, String fromUsername){
         this.transferAmount = transferAmount;
         this.transferStatus = transferStatus;
         this.transferType = transferType;
-        this.userId = userId;
+        this.userIdOfDestinationAccount = userIdOfDestinationAccount;
         this.transferId = transferId;
         this.fromUsername = fromUsername;
     }
@@ -53,12 +53,12 @@ public class Transfer {
         this.transferStatus = transferStatus;
     }
 
-    public long getUserId() {
-        return userId;
+    public long getUserIdOfDestinationAccount() {
+        return userIdOfDestinationAccount;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setUserIdOfDestinationAccount(Long userIdOfDestinationAccount) {
+        this.userIdOfDestinationAccount = userIdOfDestinationAccount;
     }
 
     public BigDecimal getTransferAmount() {

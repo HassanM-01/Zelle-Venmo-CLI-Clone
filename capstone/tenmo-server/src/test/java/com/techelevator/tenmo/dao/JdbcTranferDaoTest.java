@@ -9,8 +9,6 @@ import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.List;
 
-import static org.junit.Assert.*;
-
 public class JdbcTranferDaoTest {
 
     private static SingleConnectionDataSource dataSource;
@@ -70,7 +68,7 @@ public class JdbcTranferDaoTest {
         String currentUserName = "user1";
         Long currentUserId = (long) 1010;
         Transfer newTransfer = new Transfer();
-        newTransfer.setUserId((long) 1011);
+        newTransfer.setUserIdOfDestinationAccount((long) 1011);
         newTransfer.setTransferAmount(BigDecimal.valueOf(50.00));
         newTransfer.setTransferType((long) 1);
 

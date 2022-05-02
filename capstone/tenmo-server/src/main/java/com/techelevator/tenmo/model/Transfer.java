@@ -1,12 +1,10 @@
 package com.techelevator.tenmo.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.math.BigDecimal;
 
 public class Transfer {
 
-    private Long userId;
+    private Long userIdOfDestinationAccount;
     private BigDecimal transferAmount;
     private Long transferType;
     private Long transferStatus;
@@ -51,12 +49,12 @@ public class Transfer {
         this.transferId = transferId;
     }
 
-    public Long getUserId() {
-        return userId;
+    public Long getUserIdOfDestinationAccount() {
+        return userIdOfDestinationAccount;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setUserIdOfDestinationAccount(Long userIdOfDestinationAccount) {
+        this.userIdOfDestinationAccount = userIdOfDestinationAccount;
     }
 
     public BigDecimal getTransferAmount() {
