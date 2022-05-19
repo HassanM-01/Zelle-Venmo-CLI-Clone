@@ -35,7 +35,7 @@ public class JdbcTranferDao implements TransferDao {
     }
 
     @Override
-    public boolean requestApproved(Transfer transfer, Long currentUserId, Long returnedTransferId) {
+    public boolean requestApproved(Transfer transfer, Long currentUserId, Long returnedTransferId) { //updates transferstatus after its sent and verified
         JdbcAccountDao jdbcAccountDao = new JdbcAccountDao(jdbcTemplate.getDataSource());
         // Query updates transfer to approved
         String updateSentSql = "UPDATE transfer SET transfer_status_id = 2 WHERE transfer_id = ?";
@@ -58,7 +58,7 @@ public class JdbcTranferDao implements TransferDao {
 
     @Override
     public List<Transfer> getTransfers(String username) {
-        List<Transfer> transfers = new ArrayList<>();
+        List<Transfer> transfers = new ArrayList<>(); //had to find every transcation that the user was associated with which was then sorted on the client side
         String sql =  "SELECT transfer_id " +
                 ", transfer_type_id " +
                 ", transfer_status_id " + ", amount " +
@@ -76,7 +76,7 @@ public class JdbcTranferDao implements TransferDao {
         return transfers;
     }
 
-    public Transfer getTransferById(Long transferId) {
+    public Transfer getTransferById(Long transferId) {  //only for testing not for actual use
         Transfer transfer = new Transfer();
         String sql = "SELECT transfer_id " +
                 ", transfer_type_id " +

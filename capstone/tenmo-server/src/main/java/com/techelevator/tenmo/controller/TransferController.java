@@ -62,6 +62,6 @@ public class TransferController {
     public boolean declineRequest(@ApiParam(value = "A transfer object that includes all parameters", required = true) @RequestBody Transfer transfer) {
         return transferDao.requestRejected(transfer.getTransferId());
     }
-
+    //cancel the request pending to complete CRUD
 
 }
